@@ -30,12 +30,7 @@
             <td th:text=${user.adress}></td>
             <td th:text=${user.login}></td>
             <td th:text=${user.password}></td>
-<!--            <th:block th:each= "role : ${user.roles}">-->
-<!--                <td th:text=${role.name}></td>-->
-<!--            </th:block>>-->
-
-            <td th:each="role : ${user.roles}" th:text="${role.name}"></td>
-
+            <td th:each="role : ${user.roles}" th:text="${role.name()}"></td>
             <form action="/editUser" method="get">
                 <td>
                     <button name="id" th:value=${user.id} type=“submit”>UPDATE</button>

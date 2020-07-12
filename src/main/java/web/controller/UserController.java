@@ -5,20 +5,19 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import web.model.Role;
 import web.model.User;
-import web.service.RoleService;
 import web.service.UserService;
 
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Controller
 public class UserController {
-    @Autowired
-    private RoleService roleService;
     @Autowired
     private UserService userService;
 
@@ -29,7 +28,7 @@ public class UserController {
         return "admin";
     }
 
-    @RequestMapping(value = "/login", method = RequestMethod.GET)
+    @GetMapping(value = "/login")
     public String loginPage() {
         return "login";
     }
@@ -41,26 +40,39 @@ public class UserController {
         return "newUser";
     }
 
-    @RequestMapping(value = "/add", method = RequestMethod.POST)
+    @PostMapping(value = "/add")
     public String addUser(@ModelAttribute("user") User user) {
-        Set<Role> roles = user.getRoles();
-        roles.add(roleService.roleUser());
-        user.setRoles(roles);
+        user.setRoles(Collections.singleton(Role.USER));
         userService.add(user);
         return "redirect:/admin";
     }
 
     @GetMapping(value = "/editUser")
-    public ModelAndView editUserForm(@RequestParam("id") String id) {
-        ModelAndView modelAndView = new ModelAndView("editUser");
+    public String editUserForm(@RequestParam("id") String id, Model model) {
         User user = userService.getUserById(Long.parseLong(id));
-        modelAndView.addObject("user", user);
-        return modelAndView;
+        model.addAttribute("user", user);
+        model.addAttribute("userRoles", Role.values());
+        return "editUser";
     }
 
     @PostMapping(value = "/editUser")
-    public String editUser(@ModelAttribute("user") User user) {
-        userService.add(user);
+    public String editUser(@ModelAttribute("user") User user, @RequestParam Map<String, String> form) {
+        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        System.out.println(user.toString());
+        System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+        Set<String> roles = Arrays.stream(Role.values())
+                .map(Role::name)
+                .collect(Collectors.toSet());
+
+        user.getRoles().clear();
+
+        for (String key : form.keySet()) {
+            if (roles.contains(key)) {
+                user.getRoles().add(Role.valueOf(key));
+            }
+        }
+
+        userService.update(user);
         return "redirect:/admin";
     }
 

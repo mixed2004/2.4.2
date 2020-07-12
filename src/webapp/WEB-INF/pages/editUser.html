@@ -36,8 +36,13 @@
                     <td><input type="text" th:field="*{password}"> </td>
                 </tr>
                 <tr>
-                    <td>ROLE:</td>
-                    <td th:each="role : ${user.roles}" th:text="${role.name}" th:readonly="${role.name}"></td>
+                    <div>
+                        <li th:each="role : ${userRoles}">
+                            <label><input th:type="checkbox" th:name="${role}"
+                                          th:checked="${#lists.contains(user.roles, role)} ? 'checked'"><span
+                                    th:text="${role}"></span> </label>
+                        </li>
+                    </div>
                 </tr>
                 <tr>
                     <td><button type="submit">UPDATE</button> </td>
