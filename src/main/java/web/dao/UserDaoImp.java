@@ -1,58 +1,58 @@
 package web.dao;
 
 
-import org.hibernate.SessionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import web.model.User;
 
-import javax.persistence.TypedQuery;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import java.util.List;
 
 @Repository
 @SuppressWarnings("ALL")
 public class UserDaoImp implements UserDao {
 
-    @Autowired
-    private SessionFactory sessionFactory;
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Override
     public void add(User user) {
-        sessionFactory.getCurrentSession().persist(user);
+        entityManager
+                .persist(user);
     }
 
     @Override
     public void update(User user) {
-        sessionFactory.getCurrentSession().update(user);
+        entityManager
+                .merge(user);
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public List<User> listUsers() {
-        TypedQuery<User> query = sessionFactory.getCurrentSession().createQuery("from User");
-        return query.getResultList();
+        return entityManager
+                .createQuery("from User")
+                .getResultList();
+    }
+
+    @Override
+    public void deleteUser(User user) {
+        entityManager
+                .remove(user);
     }
 
     @Override
     public User getUserById(long id) {
-        TypedQuery<User> query = sessionFactory.getCurrentSession().createQuery("FROM User WHERE id =:id");
-        query.setParameter("id", id);
-        return query.getSingleResult();
+        return (User) entityManager
+                .createQuery("FROM User WHERE id =:id")
+                .setParameter("id", id)
+                .getSingleResult();
     }
 
     @Override
-    public void deleteUserById(long id) {
-        TypedQuery<User> query = sessionFactory.getCurrentSession().createQuery("DELETE FROM User WHERE id = :id");
-        query.setParameter("id", id);
-        query.executeUpdate();
-
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
     public User getUserByLogin(String login) {
-        TypedQuery<User> query = sessionFactory.getCurrentSession().createQuery("FROM User WHERE login =:login");
-        query.setParameter("login", login);
-        return query.getSingleResult();
+        return (User) entityManager
+                .createQuery("FROM User WHERE login =:login")
+                .setParameter("login", login)
+                .getSingleResult();
     }
 }

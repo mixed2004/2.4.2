@@ -33,14 +33,17 @@
                 </tr>
                 <tr>
                     <td>PASSWORD:</td>
-                    <td><input type="text" th:field="*{password}"> </td>
+                    <td>
+                        <input type="text" th:field="*{password}">
+                        <input type="hidden" th:value="${userHiddenPassword}" th:name="userHiddenPassword">
+                    </td>
                 </tr>
                 <tr>
                     <div>
                         <li th:each="role : ${userRoles}">
-                            <label><input th:type="checkbox" th:name="${role}"
-                                          th:checked="${#lists.contains(user.roles, role)} ? 'checked'"><span
-                                    th:text="${role}"></span> </label>
+                            <label><input th:type="checkbox" th:name="${role}">
+                                <!--                                          th:checked="${#lists.contains(user.roles.toString(), role)} ? 'checked'">-->
+                                <span th:text="${role}"></span> </label>
                         </li>
                     </div>
                 </tr>

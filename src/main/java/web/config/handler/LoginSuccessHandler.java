@@ -3,13 +3,15 @@ package web.config.handler;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import web.model.Role;
 import web.model.User;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 @Component
 public class LoginSuccessHandler implements AuthenticationSuccessHandler {
@@ -18,17 +20,19 @@ public class LoginSuccessHandler implements AuthenticationSuccessHandler {
     public void onAuthenticationSuccess(HttpServletRequest httpServletRequest,
                                         HttpServletResponse httpServletResponse,
                                         Authentication authentication) throws IOException, ServletException {
-        HttpSession httpSession = httpServletRequest.getSession();
         User user = (User) authentication.getPrincipal();
-        httpSession.setAttribute("user", user);
-        if (user.getRoles()
-                .stream()
-                .anyMatch(role -> role.name().equals("ADMIN"))) {
+        List<String> userRolesList = new ArrayList<>();
+        for (Role role : user.getRoles()) {
+            userRolesList.add(role.getRoleName());
+        }
+        if (userRolesList.contains("ADMIN")) {
             httpServletResponse.sendRedirect("/admin");
         }else {
-            httpServletResponse.sendRedirect("/user");
+            if (userRolesList.contains("USER")) {
+                httpServletResponse.sendRedirect("/user");
+            }else {
+                httpServletResponse.sendRedirect("/login");
+            }
         }
-
     }
-
     }
